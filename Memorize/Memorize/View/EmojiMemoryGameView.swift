@@ -1,5 +1,5 @@
 //
-//  ContentView.swift
+//  EmojiMemoryGameView.swift
 //  Memorize
 //
 //  Created by Marcelo Macedo on 30/09/2023.
@@ -7,19 +7,8 @@
 
 import SwiftUI
 
-struct ContentView: View {
-    let emojiFacesList = ["😇", "🥹", "😎","🙃","😀","😌","🤓","🥸","🧐","🥳","😫","🥶"] //same as Array<String> == [String]
-    let emojiHandsList = ["👍","🤌","🤝","🙌","👌","👏","👎","👊","✊","🤞","✌️","🤟"]
-    let emojiProfessionList = ["🕵️‍♂️","👷","👮‍♂️","👩‍⚕️","💂‍♂️","👨‍🌾","👨‍🍳","👩‍🏫","👨‍🏭","👨‍💻","👩‍⚖️","👨‍✈️"]
-    
-    @State var emojiChosen : [String]
-    
-    @State var cardCount = 4
-    
-    init(emojiChosen: [String], cardCount: Int = 4) {
-        self.cardCount = cardCount
-        self.emojiChosen = setList(list: emojiFacesList)
-    }
+struct EmojiMemoryGameView: View {
+    @ObservedObject var viewModel: EmojiMemoryGame //@StateObject only will work for this view
     
     var body: some View {
         VStack (spacing: 10){
@@ -27,22 +16,28 @@ struct ContentView: View {
             ScrollView {
                 cards
             }
-            Spacer()
-            cardCountAdjusters
+            Button("Shuffle"){
+                viewModel.shuffle()
+            }
+            //Spacer()
+            //cardCountAdjusters
         }
         .padding()
     }
     
     var cards : some View {
-        LazyVGrid(columns: [GridItem(.adaptive(minimum: 120))]){
-            ForEach(0..<cardCount, id: \.self){ index in  //0..<emoji.count == emoji.indices
-                CardView(content: emojiChosen[index])
-                    .aspectRatio(4/3, contentMode: .fit)
+        LazyVGrid(columns: [GridItem(.adaptive(minimum: 85), spacing: 0)], spacing: 0){
+            ForEach(viewModel.cards.indices, id: \.self){ index in  //0..<emoji.count == emoji.indices
+                CardView(viewModel.cards[index])
+                    .aspectRatio(2/3, contentMode: .fit)
+                    .padding(4)
             }
         }
         .foregroundColor(/*@START_MENU_TOKEN@*/.blue/*@END_MENU_TOKEN@*/)
     }
     
+/* // Old Code from initial lesson(buttons to change type of emoji & number os cards)
+ 
     var cardCountAdjusters : some View {
         HStack{
             cardRemover
@@ -73,7 +68,7 @@ struct ContentView: View {
     
     var changeCardType : some View {
         HStack(spacing: 30){
-            buttonChangeType(to: emojiFacesList, sfSymbol: "face.smiling", title: "Faces")
+            buttonChangeType(to: emojiHandsList, sfSymbol: "face.smiling", title: "Faces")
             buttonChangeType(to: emojiHandsList, sfSymbol: "hands.and.sparkles.fill", title: "Hands")
             buttonChangeType(to: emojiProfessionList, sfSymbol: "person.fill", title: "Workers")
         }
@@ -90,22 +85,23 @@ struct ContentView: View {
                 Text(title)
             }
         })
-    }
+    } */
 }
-
+/*
 func setList(list : [String]) -> [String]{
     var returnList : [String] = []
     returnList = list + list
     returnList.shuffle()
     return returnList
     //arrays can be added with array + array then shuffle, no need to for
-    
-    
-}
+} */
 
 struct CardView: View {
-    let content: String
-    @State var isFaceUp: Bool = false
+    let card : MemoryGame<String>.Card
+    
+    init(_ card: MemoryGame<String>.Card) {
+        self.card = card
+    }
     
     var body: some View{
         ZStack {
@@ -113,17 +109,18 @@ struct CardView: View {
             Group{
                 base.foregroundColor(.white)
                 base.strokeBorder(style: StrokeStyle(lineWidth: 4, dash: [10,2]))
-                Text(content).font(.largeTitle)
+                Text(card.content)
+                    .font(.system(size: 100))
+                    .minimumScaleFactor(0.01)
+                    .aspectRatio(1, contentMode: .fit)
             }
-            .opacity(isFaceUp ? 1 : 0)
-            base.fill().opacity(isFaceUp ? 0 : 1)
-        } .onTapGesture {
-            isFaceUp.toggle()
+                .opacity(card.isFaceUp ? 1 : 0)
+            base.fill()
+                .opacity(card.isFaceUp ? 0 : 1)
         }
-        
     }
 }
 
 #Preview {
-    ContentView(emojiChosen: [""])
+    EmojiMemoryGameView(viewModel: EmojiMemoryGame())
 }
