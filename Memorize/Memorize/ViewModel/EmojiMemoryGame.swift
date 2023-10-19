@@ -13,7 +13,7 @@ class EmojiMemoryGame: ObservableObject{ //ViewModel
     //let emojiProfessionList = ["🕵️‍♂️","👷","👮‍♂️","👩‍⚕️","💂‍♂️","👨‍🌾","👨‍🍳","👩‍🏫","👨‍🏭","👨‍💻","👩‍⚖️","👨‍✈️"]
     
     private static func createMemoryGame() -> MemoryGame<String> {
-        return MemoryGame(numberOfPairsOfCards: 16){ index in
+        return MemoryGame(numberOfPairsOfCards: 12){ index in
             if(emojis.indices.contains(index)){
                 return emojis[index]
             } else {
