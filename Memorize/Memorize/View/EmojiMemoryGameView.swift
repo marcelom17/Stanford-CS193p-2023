@@ -9,10 +9,24 @@ import SwiftUI
 
 struct EmojiMemoryGameView: View {
     @ObservedObject var viewModel: EmojiMemoryGame //@StateObject only will work for this view
+    @State var showList = false
     
     var body: some View {
         VStack (spacing: 10){
-            Text("Memorize!").font(.largeTitle)
+            HStack {
+                Image(systemName: "plus.circle").imageScale(.large).opacity(0)
+                Spacer()
+                Text("Memorize!").font(.largeTitle)
+                Spacer()
+                Image(systemName: "plus.circle")
+                    .imageScale(.large)
+                    .onTapGesture {
+                        showList.toggle()
+                    }.sheet(isPresented: $showList){
+                        Text("should be list of types")
+                            .presentationDetents([.medium, .large])
+                    }
+            }
             ScrollView {
                 cards.animation(.default, value: viewModel.cards)
             }
